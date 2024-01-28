@@ -26,6 +26,8 @@ module.exports = {
         arrowParens: "avoid",
       },
     ],
+    "react/prop-types": "off",
+    "react/no-unknown-property": "off",
   },
   parserOptions: {
     ecmaVersion: "latest",

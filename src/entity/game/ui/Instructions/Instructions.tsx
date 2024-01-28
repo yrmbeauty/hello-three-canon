@@ -1,12 +1,22 @@
-const Instructions: React.FC = () => {
+interface Props {
+  className?: string;
+}
+
+const Instructions: React.FC<Props> = props => {
+  const { className } = props;
+
   return (
-    <div className="py-8 px-8">
-      <p>Ставьте блоки друг на друга.</p>
-      <p>
+    <div
+      className={`pointer-events-none text-orange-200 text-center text-lg ${className}`}
+    >
+      <p className="my-2">Ставьте блоки друг на друга.</p>
+      <p className="my-2">
         Щёлкните мышкой или нажмите пробел, когда блок будет над пирамидой.
         Сможете дойти до синих блоков?
       </p>
-      <p>Щёлкните мышкой или нажмите пробел, чтобы начать игру.</p>
+      <p className="my-2">
+        Щёлкните мышкой или нажмите пробел, чтобы начать игру.
+      </p>
     </div>
   );
 };
