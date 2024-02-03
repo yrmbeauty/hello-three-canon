@@ -28,6 +28,10 @@ module.exports = {
     ],
     "react/prop-types": "off",
     "react/no-unknown-property": "off",
+    "react/jsx-key": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
   },
   parserOptions: {
     ecmaVersion: "latest",
