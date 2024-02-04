@@ -44,7 +44,31 @@ const SinglePlayer: React.FC<Props> = props => {
       layerRef.current?.position.x === 0 &&
       layerRef.current?.position.y === 0 &&
       layerRef.current?.position.z === 0;
-    if (isPaused || isEnd || isFirstLayer) return;
+
+    let isStop = false;
+    if (layers.length && isAutoplay) {
+      const lastLayer = layers[layers.length - 1];
+      const lastLayerCenter =
+        layerDirection.current === "x"
+          ? lastLayer.position[0]
+          : lastLayer.position[2];
+      const activeLayerPos =
+        layerDirection.current === "x"
+          ? layerRef.current?.position.x!
+          : layerRef.current?.position.z!;
+
+      isStop = !(
+        lastLayerCenter - AUTO_PLAY_ACCURACY >= activeLayerPos ||
+        lastLayerCenter + AUTO_PLAY_ACCURACY <= activeLayerPos
+      );
+    }
+    // if (!isStop && layerRef.current?.position && layers[layers.length - 1])
+    //   console.log({
+    //     activeLayerPos: layerRef.current?.position,
+    //     lastLayerPos: layers[layers.length - 1].position,
+    //   });
+
+    if (isPaused || isEnd || isFirstLayer || isStop) return;
 
     // Move active layer position
     const plusX = layerDirection.current === "x" ? VELOCITY : 0;
