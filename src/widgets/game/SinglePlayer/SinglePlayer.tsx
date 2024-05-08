@@ -7,7 +7,6 @@ import Layer from "entity/game/ui/Layer/Layer";
 import type { GameState, Layer as ILayer } from "entity/game/types/game";
 import {
   AUTO_PLAY_ACCURACY,
-  CENTER,
   LAYER_GAP,
   LAYER_INITIAL_POS,
   LAYER_SIZE,
