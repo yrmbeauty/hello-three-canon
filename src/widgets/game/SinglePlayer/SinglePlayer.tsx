@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-// import * as THREE from "three";
 
 import Layer from "entity/game/ui/Layer/Layer";
 import type { GameState, Layer as ILayer } from "entity/game/types/game";
@@ -60,12 +59,11 @@ const SinglePlayer: React.FC<Props> = props => {
         lastLayerCenter - AUTO_PLAY_ACCURACY >= activeLayerPos ||
         lastLayerCenter + AUTO_PLAY_ACCURACY <= activeLayerPos
       );
+
+      if (isStop) {
+        addLayer();
+      }
     }
-    // if (!isStop && layerRef.current?.position && layers[layers.length - 1])
-    //   console.log({
-    //     activeLayerPos: layerRef.current?.position,
-    //     lastLayerPos: layers[layers.length - 1].position,
-    //   });
 
     if (isPaused || isEnd || isFirstLayer || isStop) return;
 
@@ -99,10 +97,6 @@ const SinglePlayer: React.FC<Props> = props => {
   };
 
   const addLayer = useCallback(() => {
-    if (!isRunning) {
-      setGameState("running");
-    }
-
     setLayers(layers => {
       const position = [
         layerRef.current?.position.x,
@@ -124,10 +118,32 @@ const SinglePlayer: React.FC<Props> = props => {
     });
   }, [setGameState, setLayers]);
 
+  const startGame = useCallback(() => {
+    setLayers(() => {
+      const position = [0, 0, 0];
+
+      const newLayers = [
+        {
+          size: layerSize,
+          position,
+        } as ILayer,
+      ];
+
+      setActiveLayer(newLayers);
+
+      return newLayers;
+    });
+  }, [setGameState, setLayers]);
+
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.code === "Space") {
-        addLayer();
+        if (isAutoplay && !isRunning) {
+          setGameState("running");
+          startGame();
+        } else {
+          addLayer();
+        }
       }
     },
     [addLayer, layers],
@@ -139,6 +155,12 @@ const SinglePlayer: React.FC<Props> = props => {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [onKeyDown]);
+
+  useEffect(() => {
+    if (isAutoplay) {
+      addLayer();
+    }
+  }, [isAutoplay]);
 
   useEffect(() => {
     console.log({ layers });
