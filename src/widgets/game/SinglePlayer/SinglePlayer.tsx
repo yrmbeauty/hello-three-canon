@@ -163,6 +163,14 @@ const SinglePlayer: React.FC<Props> = props => {
   }, [isAutoplay]);
 
   useEffect(() => {
+    if (isAutoplay && layers.length === 8) {
+      const newLayers = [{ position: [0, 0, 0], size: LAYER_SIZE } as ILayer];
+      setLayers(newLayers);
+      setActiveLayer(newLayers);
+    }
+  }, [isAutoplay, layers]);
+
+  useEffect(() => {
     console.log({ layers });
   }, [layers]);
 
