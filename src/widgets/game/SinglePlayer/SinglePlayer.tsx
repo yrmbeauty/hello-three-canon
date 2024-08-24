@@ -145,8 +145,11 @@ const SinglePlayer: React.FC<Props> = props => {
           addLayer();
         }
       }
+      if (e.code === "KeyP") {
+        isPaused ? setGameState("running") : setGameState("pause");
+      }
     },
-    [addLayer, layers],
+    [addLayer, layers, isPaused],
   );
 
   useEffect(() => {
