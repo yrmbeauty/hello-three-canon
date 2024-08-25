@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 
 import Layer from "entity/game/ui/Layer/Layer";
 import type { GameState, Layer as ILayer } from "entity/game/types/game";
@@ -179,14 +178,6 @@ const Game: React.FC<Props> = props => {
 
   return (
     <>
-      <directionalLight
-        position={[0, 50, 0]}
-        shadow-bias={-0.001}
-        intensity={2}
-        castShadow
-      />
-      <hemisphereLight position={[0, 15, 0]} />
-
       <mesh ref={layerRef} castShadow>
         <boxGeometry args={layerSize} />
         <meshStandardMaterial attach="material" color="orange" flatShading />
@@ -195,17 +186,6 @@ const Game: React.FC<Props> = props => {
       {layers.map(({ position, size }, idx) => (
         <Layer key={idx} position={position} size={size} />
       ))}
-
-      <mesh position={[0, -1, 0]} receiveShadow>
-        <boxGeometry args={[60, 0, 60]} />
-        <meshStandardMaterial attach="material" color="grey" flatShading />
-      </mesh>
-
-      <OrbitControls
-        enableRotate={false}
-        minPolarAngle={Math.PI / 4.5}
-        maxPolarAngle={Math.PI / 4.55}
-      />
     </>
   );
 };
