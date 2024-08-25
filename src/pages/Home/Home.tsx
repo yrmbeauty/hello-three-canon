@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber";
 
 import Instructions from "entity/interface/ui/Instructions/Instructions";
 import Results from "entity/interface/ui/Results/Results";
-import SinglePlayer from "widgets/game/SinglePlayer/SinglePlayer";
+import Game from "entity/game/ui/Game/Game";
 
 const Home: React.FC = () => {
   const [gameState, setGameState] = useState<
@@ -20,7 +20,7 @@ const Home: React.FC = () => {
       {gameState === "end" && <Results />}
       <div className="w-full h-screen">
         <Canvas camera={{ position: [0.1, 4, 0.1], fov: 60 }} shadows>
-          <SinglePlayer
+          <Game
             gameState={gameState}
             setScore={setScore}
             setGameState={setGameState}

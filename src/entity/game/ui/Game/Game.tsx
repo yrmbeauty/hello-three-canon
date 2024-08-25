@@ -11,7 +11,7 @@ import {
   LAYER_SIZE,
   LayerRef,
   VELOCITY,
-} from "./SinglePlayer.constants";
+} from "./Game.constants";
 
 interface Props {
   gameState: GameState;
@@ -21,7 +21,7 @@ interface Props {
   setScore: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const SinglePlayer: React.FC<Props> = props => {
+const Game: React.FC<Props> = props => {
   const { gameState, setGameState } = props;
 
   const [isAutoplay, isPaused, isRunning, isEnd] = [
@@ -210,9 +210,4 @@ const SinglePlayer: React.FC<Props> = props => {
   );
 };
 
-export default SinglePlayer;
-
-// for autoplay
-//   const isMoving =
-//     0 - AUTO_PLAY_ACCURACY >= currentPosCoordValue ||
-//     0 + AUTO_PLAY_ACCURACY <= currentPosCoordValue;
+export default Game;
