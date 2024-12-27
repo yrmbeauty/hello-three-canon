@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 import Layer, { LayerRef } from "entity/game/ui/Layer/Layer";
 import type { Layer as ILayer } from "entity/game/types/game";
@@ -39,33 +40,65 @@ const SinglePlayer: React.FC = () => {
     else layerDirection.current = "x";
 
     // Set new active layer position
-    const plusX = layerDirection.current === "x" ? LAYER_INITIAL_POS : 0;
-    const plusZ = layerDirection.current === "z" ? LAYER_INITIAL_POS : 0;
+    const plusX =
+      layerDirection.current === "x"
+        ? LAYER_INITIAL_POS
+        : lastLayer.position[0];
+    const plusZ =
+      layerDirection.current !== "x"
+        ? LAYER_INITIAL_POS
+        : lastLayer.position[2];
     const newY = lastLayer.position[1] + LAYER_GAP;
     const newPos: [number, number, number] = [plusX, newY, plusZ];
     activeLayerRef.current?.position.set(...newPos);
-
-    // Set new active layer size
-    setLayerSize(lastLayer.size);
   };
 
   const addLayer = useCallback(() => {
     if (!activeLayerRef.current) return;
-    const newLayers = [
-      ...layers,
-      {
-        size: layerSize,
-        position: [
-          activeLayerRef.current.position.x,
-          activeLayerRef.current.position.y,
-          activeLayerRef.current.position.z,
-        ],
-      } as ILayer,
-    ];
 
-    setLayers(newLayers);
+    // for simplification purposes
+    const { lastL, activeL } = {
+      lastL: { pos: lastLayer.position, size: lastLayer.size },
+      activeL: {
+        pos: new THREE.Vector3(...activeLayerRef.current.position),
+        size: layerSize,
+      },
+    };
+
+    const dCoord = layerDirection.current === "x" ? 0 : 2;
+
+    // если двигались по оси X, то берём ширину блока, а если нет (по оси Z) — то глубину
+    const size = activeL.size[dCoord];
+    // считаем разницу между позициями этих двух блоков
+    const delta = activeL.pos[layerDirection.current] - lastL.pos[dCoord];
+    // считаем размер свеса
+    const overhangSize = Math.abs(delta);
+    // размер отрезаемой части
+    const overlap = size - overhangSize;
+
+    const newSizeX = layerDirection.current === "x" ? overlap : activeL.size[0];
+    const newSizeZ = layerDirection.current !== "x" ? overlap : activeL.size[2];
+
+    const newPosX =
+      layerDirection.current === "x"
+        ? activeL.pos[layerDirection.current] - delta / 2
+        : activeL.pos.x;
+    const newPosZ =
+      layerDirection.current !== "x"
+        ? activeL.pos[layerDirection.current] - delta / 2
+        : activeL.pos.z;
+
+    const newLayer: ILayer = {
+      size: [newSizeX, layerSize[1], newSizeZ],
+      position: [newPosX, activeL.pos.y, newPosZ],
+    };
+
+    const newLayers = [...layers, newLayer];
+
+    setLayerSize(newLayer.size);
     setActiveLayer(newLayers[newLayers.length - 1]);
-  }, [setLayers, layers]);
+    setLayers(newLayers);
+  }, [setLayers, layers, layerSize]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
