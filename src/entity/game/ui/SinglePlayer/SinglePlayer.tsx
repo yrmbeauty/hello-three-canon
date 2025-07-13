@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import Layer, { LayerRef } from "entity/game/ui/Layer/Layer";
-import type { Layer as ILayer } from "entity/game/types/game";
+import type { GameState, Layer as ILayer } from "entity/game/types/game";
 import {
   LAYER_GAP,
   LAYER_INITIAL_POS,
@@ -11,18 +11,61 @@ import {
   VELOCITY,
 } from "./SinglePlayer.constants";
 
-const SinglePlayer: React.FC = () => {
+const AutoplayAccuracy = [-0.1, 2.1];
+
+const getAutoplayAccuracy = () => {
+  return (
+    Math.random() * (AutoplayAccuracy[1] - AutoplayAccuracy[0]) +
+    AutoplayAccuracy[0]
+  );
+};
+
+interface Props {
+  gameState: GameState;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  setScore: React.Dispatch<React.SetStateAction<number>>;
+  setOnClick: React.Dispatch<React.SetStateAction<(() => void) | null>>;
+}
+
+const SinglePlayer: React.FC<Props> = ({
+  gameState,
+  setGameState,
+  setScore,
+  setOnClick,
+}) => {
+  const [currentAutoplayAccuracy, setCurrentAutoplayAccuracy] = useState(
+    getAutoplayAccuracy(),
+  );
+
   const [layers, setLayers] = useState<ILayer[]>([
     { position: [0, 0, 0], size: LAYER_SIZE },
   ]);
   const lastLayer = layers[layers.length - 1];
 
   const layerDirection = useRef<"x" | "z">("x");
-  const activeLayerRef = useRef<LayerRef>(null);
+  const activeLayerRef = useRef<LayerRef | null>(null);
   const [layerSize, setLayerSize] = useState(LAYER_SIZE);
 
+  const currentLayerBounds = useMemo((): {
+    xMin: number;
+    xMax: number;
+    zMin: number;
+    zMax: number;
+  } | null => {
+    if (!lastLayer) return null;
+    const { position, size } = lastLayer;
+    const xSizesSum = layerSize[0] + size[0];
+    const zSizesSum = layerSize[2] + size[2];
+
+    const xMin = lastLayer.position[0] - xSizesSum / 2;
+    const xMax = lastLayer.position[0] + xSizesSum / 2;
+    const zMin = position[2] - zSizesSum / 2;
+    const zMax = position[2] + zSizesSum / 2;
+    return { xMin, xMax, zMin, zMax };
+  }, [lastLayer, layerSize]);
+
   useFrame(() => {
-    if (!activeLayerRef.current) return;
+    if (!activeLayerRef.current || gameState === "end") return;
     // Move active layer position
     const plusX = layerDirection.current === "x" ? VELOCITY : 0;
     const plusZ = layerDirection.current === "z" ? VELOCITY : 0;
@@ -32,10 +75,31 @@ const SinglePlayer: React.FC = () => {
       activeLayerRef.current.position.z + plusZ,
     ];
     activeLayerRef.current.position.set(...newPos);
+
+    // Check if active layer is out of bounds
+    if (currentLayerBounds) {
+      const { xMax, zMax } = currentLayerBounds;
+      if (newPos[0] > xMax || newPos[2] > zMax) {
+        // Handle out of bounds
+        if (gameState === "autoplay") {
+          restart();
+        }
+        if (gameState === "running") {
+          setGameState("end");
+        }
+      }
+    }
   });
 
+  const restart = () => {
+    setLayers([{ position: [0, 0, 0], size: LAYER_SIZE }]);
+    setLayerSize(LAYER_SIZE);
+    setActiveLayer({ position: [0, 0, 0], size: LAYER_SIZE });
+    setScore(0);
+  };
+
   const setActiveLayer = (lastLayer: ILayer) => {
-    // Change to opposit active layer slide direction
+    // Change to opposite active layer slide direction
     if (layerDirection.current === "x") layerDirection.current = "z";
     else layerDirection.current = "x";
 
@@ -95,27 +159,48 @@ const SinglePlayer: React.FC = () => {
 
     const newLayers = [...layers, newLayer];
 
+    setScore(score => score + 1);
+    setCurrentAutoplayAccuracy(getAutoplayAccuracy());
     setLayerSize(newLayer.size);
     setActiveLayer(newLayers[newLayers.length - 1]);
     setLayers(newLayers);
   }, [setLayers, layers, layerSize]);
 
+  const onPlay = useCallback(() => {
+    if (gameState === "autoplay" || gameState === "end") {
+      restart();
+      setGameState("running");
+    }
+    if (gameState === "running") {
+      if (currentLayerBounds && activeLayerRef.current) {
+        const { xMin, zMin } = currentLayerBounds;
+        const { x, z } = activeLayerRef.current.position;
+        if (x < xMin || z < zMin) {
+          setGameState("end");
+          return;
+        }
+      }
+      addLayer();
+    }
+  }, [addLayer, gameState, setGameState, currentLayerBounds]);
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space") {
-        addLayer();
+        onPlay();
       }
     };
+    setOnClick(() => onPlay);
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [addLayer]);
+  }, [onPlay, setOnClick]);
 
   return (
     <>
       <Layer
-        key={"activeLayer"}
+        key="activeLayer"
         ref={activeLayerRef}
         position={[LAYER_INITIAL_POS, LAYER_GAP, 0]}
         size={layerSize}

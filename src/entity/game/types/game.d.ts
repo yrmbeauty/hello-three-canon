@@ -1,4 +1,4 @@
-export type GameState = "pause" | "running" | "end" | "autoplay";
+export type GameState = "running" | "end" | "autoplay";
 
 export interface Layer {
   position: [number, number, number];
