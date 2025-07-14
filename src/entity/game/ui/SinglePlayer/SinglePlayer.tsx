@@ -204,10 +204,15 @@ const SinglePlayer: React.FC<Props> = ({
         ref={activeLayerRef}
         position={[LAYER_INITIAL_POS, LAYER_GAP, 0]}
         size={layerSize}
+        color={new THREE.Color(`hsl(${30 + layers.length * 4}, 100%, 50%)`)}
       />
-
       {layers.map(({ position, size }, idx) => (
-        <Layer key={idx} position={position} size={size} />
+        <Layer
+          key={idx}
+          position={position}
+          size={size}
+          color={new THREE.Color(`hsl(${30 + idx * 4}, 100%, 50%)`)}
+        />
       ))}
     </>
   );

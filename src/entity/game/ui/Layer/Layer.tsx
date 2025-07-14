@@ -8,13 +8,16 @@ export type LayerRef = THREE.Mesh<
   THREE.Object3DEventMap
 >;
 
-const Layer = forwardRef<LayerRef, Partial<ILayer>>((props, _ref) => {
-  const { position, size } = props;
+const Layer = forwardRef<
+  LayerRef,
+  Partial<ILayer & { color: string | THREE.Color }>
+>((props, _ref) => {
+  const { position, size, color = "orange" } = props;
 
   return (
     <mesh ref={_ref} position={position} castShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial attach="material" color="orange" flatShading />
+      <meshStandardMaterial attach="material" color={color} flatShading />
     </mesh>
   );
 });

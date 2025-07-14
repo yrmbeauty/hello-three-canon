@@ -12,6 +12,10 @@ const Home: React.FC = () => {
   const [score, setScore] = useState(0);
   const [onClick, setOnClick] = useState<(() => void) | null>(null);
 
+  const handleOnClick = () => {
+    onClick?.();
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center bg-slate-300 text-black dark:bg-black dark:text-white">
       <div className="absolute right-28 top-12 text-6xl z-10">{score}</div>
@@ -22,11 +26,7 @@ const Home: React.FC = () => {
         <Results className="absolute max-w-screen-sm top-1/4 z-10" />
       )}
       <div className="w-full h-screen">
-        <Canvas
-          camera={{ position: [0.1, 4, 0.1], fov: 60 }}
-          onClick={() => onClick?.()}
-          shadows
-        >
+        <Canvas onClick={handleOnClick} shadows>
           <Scene />
           <SinglePlayer
             gameState={gameState}

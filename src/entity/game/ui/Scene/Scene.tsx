@@ -1,26 +1,39 @@
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, OrthographicCamera } from "@react-three/drei";
+import { useMemo } from "react";
 
 const Scene: React.FC = () => {
+  const { left, right, top, bottom } = useMemo(() => {
+    const aspect = window.innerWidth / window.innerHeight;
+    const width = 10;
+    const height = width / aspect;
+
+    return {
+      left: width / -2,
+      right: width / 2,
+      top: height / 2,
+      bottom: height / -2,
+    };
+  }, []);
+
   return (
     <>
+      <ambientLight intensity={0.6} color={0xffffff} />
       <directionalLight
-        position={[0, 50, 0]}
-        shadow-bias={-0.001}
-        intensity={2}
-        castShadow
+        intensity={0.6}
+        color={0xffffff}
+        position={[10, 20, 0]}
       />
-      <hemisphereLight position={[0, 15, 0]} />
-
-      <OrbitControls
-        enableRotate={false}
-        minPolarAngle={Math.PI / 4.5}
-        maxPolarAngle={Math.PI / 4.55}
+      <OrbitControls />
+      <OrthographicCamera
+        makeDefault
+        left={left}
+        right={right}
+        top={top}
+        bottom={bottom}
+        near={0}
+        far={100}
+        position={[4, 4, 4]}
       />
-
-      <mesh position={[0, -1, 0]} receiveShadow>
-        <boxGeometry args={[60, 0, 60]} />
-        <meshStandardMaterial attach="material" color="grey" flatShading />
-      </mesh>
     </>
   );
 };
