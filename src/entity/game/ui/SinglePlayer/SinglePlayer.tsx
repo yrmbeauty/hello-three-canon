@@ -33,9 +33,7 @@ const SinglePlayer: React.FC<Props> = ({
   setScore,
   setOnClick,
 }) => {
-  const [currentAutoplayAccuracy, setCurrentAutoplayAccuracy] = useState(
-    getAutoplayAccuracy(),
-  );
+  const [_, setCurrentAutoplayAccuracy] = useState(getAutoplayAccuracy());
 
   const [layers, setLayers] = useState<ILayer[]>([
     { position: [0, 0, 0], size: LAYER_SIZE },
