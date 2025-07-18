@@ -77,7 +77,7 @@ const SinglePlayer: React.FC<Props> = ({
     activeLayerRef.current.position.set(...newPos);
 
     // после установки блока поднимаем камеру
-    if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 4) {
+    if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 6) {
       camera.position.y += VELOCITY;
     }
 
