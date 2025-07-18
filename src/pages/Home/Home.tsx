@@ -26,7 +26,13 @@ const Home: React.FC = () => {
         <Results className="absolute max-w-screen-sm top-1/4 z-10" />
       )}
       <div className="w-full h-screen">
-        <Canvas onClick={handleOnClick} shadows>
+        <Canvas
+          onClick={handleOnClick}
+          shadows
+          onCreated={({ camera }) => {
+            camera.lookAt(0, 0, 0);
+          }}
+        >
           <Scene />
           <SinglePlayer
             gameState={gameState}

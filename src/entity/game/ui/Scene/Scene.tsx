@@ -1,4 +1,4 @@
-import { OrbitControls, OrthographicCamera } from "@react-three/drei";
+import { OrthographicCamera } from "@react-three/drei";
 import { useMemo } from "react";
 
 const Scene: React.FC = () => {
@@ -23,7 +23,6 @@ const Scene: React.FC = () => {
         color={0xffffff}
         position={[10, 20, 0]}
       />
-      <OrbitControls />
       <OrthographicCamera
         makeDefault
         left={left}

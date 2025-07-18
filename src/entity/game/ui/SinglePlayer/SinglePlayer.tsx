@@ -1,11 +1,12 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import Layer, { LayerRef } from "entity/game/ui/Layer/Layer";
 import type { GameState, Layer as ILayer } from "entity/game/types/game";
 import {
   LAYER_GAP,
+  LAYER_HEIGHT,
   LAYER_INITIAL_POS,
   LAYER_SIZE,
   VELOCITY,
@@ -33,8 +34,9 @@ const SinglePlayer: React.FC<Props> = ({
   setScore,
   setOnClick,
 }) => {
-  const [_, setCurrentAutoplayAccuracy] = useState(getAutoplayAccuracy());
+  const camera = useThree(({ camera }) => camera);
 
+  const [_, setCurrentAutoplayAccuracy] = useState(getAutoplayAccuracy());
   const [layers, setLayers] = useState<ILayer[]>([
     { position: [0, 0, 0], size: LAYER_SIZE },
   ]);
@@ -62,7 +64,7 @@ const SinglePlayer: React.FC<Props> = ({
     return { xMin, xMax, zMin, zMax };
   }, [lastLayer, layerSize]);
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
     if (!activeLayerRef.current || gameState === "end") return;
     // Move active layer position
     const plusX = layerDirection.current === "x" ? VELOCITY : 0;
@@ -73,6 +75,11 @@ const SinglePlayer: React.FC<Props> = ({
       activeLayerRef.current.position.z + plusZ,
     ];
     activeLayerRef.current.position.set(...newPos);
+
+    // после установки блока поднимаем камеру
+    if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 4) {
+      camera.position.y += VELOCITY;
+    }
 
     // Check if active layer is out of bounds
     if (currentLayerBounds) {
@@ -93,6 +100,7 @@ const SinglePlayer: React.FC<Props> = ({
     setLayers([{ position: [0, 0, 0], size: LAYER_SIZE }]);
     setLayerSize(LAYER_SIZE);
     setActiveLayer({ position: [0, 0, 0], size: LAYER_SIZE });
+    camera.position.y = 4;
     setScore(0);
   };
 
