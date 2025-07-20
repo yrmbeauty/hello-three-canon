@@ -12,7 +12,7 @@ const Home: React.FC = () => {
   const [score, setScore] = useState(0);
   const [onClick, setOnClick] = useState<(() => void) | null>(null);
 
-  const handleOnClick = () => {
+  const handleOnKeyDown = () => {
     onClick?.();
   };
 
@@ -27,7 +27,8 @@ const Home: React.FC = () => {
       )}
       <div className="w-full h-screen">
         <Canvas
-          onClick={handleOnClick}
+          onKeyDown={handleOnKeyDown}
+          onTouchStart={handleOnKeyDown}
           shadows
           onCreated={({ camera }) => {
             camera.lookAt(0, 0, 0);

@@ -64,11 +64,11 @@ const SinglePlayer: React.FC<Props> = ({
     return { xMin, xMax, zMin, zMax };
   }, [lastLayer, layerSize]);
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, delta) => {
     if (!activeLayerRef.current || gameState === "end") return;
     // Move active layer position
-    const plusX = layerDirection.current === "x" ? VELOCITY : 0;
-    const plusZ = layerDirection.current === "z" ? VELOCITY : 0;
+    const plusX = layerDirection.current === "x" ? VELOCITY * delta : 0;
+    const plusZ = layerDirection.current === "z" ? VELOCITY * delta : 0;
     const newPos: [number, number, number] = [
       activeLayerRef.current.position.x + plusX,
       activeLayerRef.current.position.y,
@@ -77,8 +77,8 @@ const SinglePlayer: React.FC<Props> = ({
     activeLayerRef.current.position.set(...newPos);
 
     // после установки блока поднимаем камеру
-    if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 6) {
-      camera.position.y += VELOCITY;
+    if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 5) {
+      camera.position.y += VELOCITY * delta;
     }
 
     // Check if active layer is out of bounds
