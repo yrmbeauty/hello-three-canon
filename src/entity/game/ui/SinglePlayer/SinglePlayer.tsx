@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 import Layer, { LayerRef } from "entity/game/ui/Layer/Layer";
@@ -11,15 +11,7 @@ import {
   LAYER_SIZE,
   VELOCITY,
 } from "./SinglePlayer.constants";
-
-const AutoplayAccuracy = [-0.1, 2.1];
-
-const getAutoplayAccuracy = () => {
-  return (
-    Math.random() * (AutoplayAccuracy[1] - AutoplayAccuracy[0]) +
-    AutoplayAccuracy[0]
-  );
-};
+import { generateAutoplayAccuracy } from "./SinglePlayer.helpers";
 
 interface Props {
   gameState: GameState;
@@ -34,9 +26,10 @@ const SinglePlayer: React.FC<Props> = ({
   setScore,
   setOnClick,
 }) => {
-  const camera = useThree(({ camera }) => camera);
+  const [currentAutoplayAccuracy, setCurrentAutoplayAccuracy] = useState(
+    generateAutoplayAccuracy(),
+  );
 
-  const [_, setCurrentAutoplayAccuracy] = useState(getAutoplayAccuracy());
   const [layers, setLayers] = useState<ILayer[]>([
     { position: [0, 0, 0], size: LAYER_SIZE },
   ]);
@@ -76,9 +69,14 @@ const SinglePlayer: React.FC<Props> = ({
     ];
     activeLayerRef.current.position.set(...newPos);
 
-    // после установки блока поднимаем камеру
+    // Move camera up after add layer
     if (camera.position.y < LAYER_HEIGHT * (layers.length - 2) + 5) {
       camera.position.y += VELOCITY * delta;
+    }
+
+    // Move camera down after restart
+    if (camera.position.y > LAYER_HEIGHT * (layers.length - 2) + 6) {
+      camera.position.y -= VELOCITY * 4 * delta;
     }
 
     // Check if active layer is out of bounds
@@ -94,13 +92,21 @@ const SinglePlayer: React.FC<Props> = ({
         }
       }
     }
+
+    // Autoplay
+    if (gameState === "autoplay") {
+      const currentDir = layerDirection.current === "x" ? 0 : 2;
+      const deltaPos = newPos[currentDir] - lastLayer.position[currentDir];
+      if (deltaPos > currentAutoplayAccuracy) {
+        addLayer();
+      }
+    }
   });
 
   const restart = () => {
     setLayers([{ position: [0, 0, 0], size: LAYER_SIZE }]);
     setLayerSize(LAYER_SIZE);
     setActiveLayer({ position: [0, 0, 0], size: LAYER_SIZE });
-    camera.position.y = 4;
     setScore(0);
   };
 
@@ -126,6 +132,16 @@ const SinglePlayer: React.FC<Props> = ({
   const addLayer = useCallback(() => {
     if (!activeLayerRef.current) return;
 
+    if (currentLayerBounds) {
+      const { xMin, zMin } = currentLayerBounds;
+      const { x, z } = activeLayerRef.current.position;
+      if (x < xMin || z < zMin) {
+        if (gameState === "running") setGameState("end");
+        if (gameState === "autoplay") restart();
+        return;
+      }
+    }
+
     // for simplification purposes
     const { lastL, activeL } = {
       lastL: { pos: lastLayer.position, size: lastLayer.size },
@@ -137,13 +153,9 @@ const SinglePlayer: React.FC<Props> = ({
 
     const dCoord = layerDirection.current === "x" ? 0 : 2;
 
-    // если двигались по оси X, то берём ширину блока, а если нет (по оси Z) — то глубину
     const size = activeL.size[dCoord];
-    // считаем разницу между позициями этих двух блоков
     const delta = activeL.pos[layerDirection.current] - lastL.pos[dCoord];
-    // считаем размер свеса
     const overhangSize = Math.abs(delta);
-    // размер отрезаемой части
     const overlap = size - overhangSize;
 
     const newSizeX = layerDirection.current === "x" ? overlap : activeL.size[0];
@@ -165,12 +177,12 @@ const SinglePlayer: React.FC<Props> = ({
 
     const newLayers = [...layers, newLayer];
 
+    setLayers(newLayers);
     setScore(score => score + 1);
-    setCurrentAutoplayAccuracy(getAutoplayAccuracy());
+    setCurrentAutoplayAccuracy(generateAutoplayAccuracy());
     setLayerSize(newLayer.size);
     setActiveLayer(newLayers[newLayers.length - 1]);
-    setLayers(newLayers);
-  }, [setLayers, layers, layerSize]);
+  }, [setLayers, layers, layerSize, currentLayerBounds, gameState]);
 
   const onPlay = useCallback(() => {
     if (gameState === "autoplay" || gameState === "end") {
@@ -178,17 +190,9 @@ const SinglePlayer: React.FC<Props> = ({
       setGameState("running");
     }
     if (gameState === "running") {
-      if (currentLayerBounds && activeLayerRef.current) {
-        const { xMin, zMin } = currentLayerBounds;
-        const { x, z } = activeLayerRef.current.position;
-        if (x < xMin || z < zMin) {
-          setGameState("end");
-          return;
-        }
-      }
       addLayer();
     }
-  }, [addLayer, gameState, setGameState, currentLayerBounds]);
+  }, [addLayer, gameState, setGameState]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
