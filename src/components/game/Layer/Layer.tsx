@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { Layer as ILayer } from "entity/game/types/game";
+import type { Layer as ILayer } from "app/types/game";
 import { forwardRef } from "react";
 
 export type LayerRef = THREE.Mesh<

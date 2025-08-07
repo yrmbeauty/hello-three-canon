@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { Physics } from "@react-three/cannon";
 
-import Instructions from "entity/interface/ui/Instructions/Instructions";
-import Results from "entity/interface/ui/Results/Results";
-import Scene from "entity/game/ui/Scene/Scene";
-import SinglePlayer from "entity/game/ui/SinglePlayer/SinglePlayer";
-import { GameState } from "entity/game/types/game";
+import Instructions from "components/interface/Instructions/Instructions";
+import Results from "components/interface/Results/Results";
+import Scene from "components/game/Scene/Scene";
+import SinglePlayer from "widgets/game/SinglePlayer/SinglePlayer";
+import { GameState } from "app/types/game";
 
 const Home: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>("autoplay");
@@ -34,13 +35,15 @@ const Home: React.FC = () => {
             camera.lookAt(0, 0, 0);
           }}
         >
-          <Scene />
-          <SinglePlayer
-            gameState={gameState}
-            setGameState={setGameState}
-            setScore={setScore}
-            setOnClick={setOnClick}
-          />
+          <Physics broadphase="SAP">
+            <Scene />
+            <SinglePlayer
+              gameState={gameState}
+              setGameState={setGameState}
+              setScore={setScore}
+              setOnClick={setOnClick}
+            />
+          </Physics>
         </Canvas>
       </div>
     </main>

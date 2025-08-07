@@ -2,8 +2,8 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import Layer, { LayerRef } from "entity/game/ui/Layer/Layer";
-import type { GameState, Layer as ILayer } from "entity/game/types/game";
+import Layer, { LayerRef } from "components/game/Layer/Layer";
+import type { GameState, Layer as ILayer } from "app/types/game";
 import {
   LAYER_GAP,
   LAYER_HEIGHT,
