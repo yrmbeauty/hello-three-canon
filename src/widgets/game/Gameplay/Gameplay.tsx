@@ -76,7 +76,7 @@ const Gameplay: React.FC<Props> = ({
 
     // Move camera down after restart
     if (camera.position.y > LAYER_HEIGHT * (layers.length - 2) + 6) {
-      camera.position.y -= VELOCITY * 4 * delta;
+      camera.position.y -= VELOCITY * layers.length * 8 * delta;
     }
 
     // Check if active layer is out of bounds
