@@ -1,5 +1,7 @@
-import { OrthographicCamera } from "@react-three/drei";
+import { OrthographicCamera, Stats } from "@react-three/drei";
 import { useMemo } from "react";
+
+const isDev = import.meta.env.DEV;
 
 const Scene: React.FC = () => {
   const { left, right, top, bottom } = useMemo(() => {
@@ -17,6 +19,7 @@ const Scene: React.FC = () => {
 
   return (
     <>
+      {isDev && <Stats />}
       <ambientLight intensity={0.6} color={0xffffff} />
       <directionalLight
         intensity={0.6}
