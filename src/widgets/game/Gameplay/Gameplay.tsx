@@ -2,16 +2,16 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import Layer, { LayerRef } from "components/game/Layer/Layer";
 import type { GameState, Layer as ILayer } from "app/types/game";
+import Layer, { LayerRef } from "components/game/Layer/Layer";
 import {
   LAYER_GAP,
   LAYER_HEIGHT,
   LAYER_INITIAL_POS,
   LAYER_SIZE,
   VELOCITY,
-} from "./SinglePlayer.constants";
-import { generateAutoplayAccuracy } from "./SinglePlayer.helpers";
+} from "./Gameplay.constants";
+import { generateAutoplayAccuracy } from "./Gameplay.helpers";
 
 interface Props {
   gameState: GameState;
@@ -20,7 +20,7 @@ interface Props {
   setOnClick: React.Dispatch<React.SetStateAction<(() => void) | null>>;
 }
 
-const SinglePlayer: React.FC<Props> = ({
+const Gameplay: React.FC<Props> = ({
   gameState,
   setGameState,
   setScore,
@@ -228,4 +228,4 @@ const SinglePlayer: React.FC<Props> = ({
   );
 };
 
-export default SinglePlayer;
+export default Gameplay;

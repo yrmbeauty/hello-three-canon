@@ -1,4 +1,4 @@
-import { AUTO_PLAY_ACCURACY } from "./SinglePlayer.constants";
+import { AUTO_PLAY_ACCURACY } from "./Gameplay.constants";
 
 export const generateAutoplayAccuracy = () => {
   return (

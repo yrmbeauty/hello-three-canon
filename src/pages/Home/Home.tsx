@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/cannon";
 
+import { GameState } from "app/types/game";
+import Gameplay from "widgets/game/Gameplay/Gameplay";
 import Instructions from "components/interface/Instructions/Instructions";
 import Results from "components/interface/Results/Results";
 import Scene from "components/game/Scene/Scene";
-import SinglePlayer from "widgets/game/SinglePlayer/SinglePlayer";
-import { GameState } from "app/types/game";
 
 const Home: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>("autoplay");
@@ -37,7 +37,7 @@ const Home: React.FC = () => {
         >
           <Physics broadphase="SAP">
             <Scene />
-            <SinglePlayer
+            <Gameplay
               gameState={gameState}
               setGameState={setGameState}
               setScore={setScore}
